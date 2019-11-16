@@ -1,0 +1,8 @@
+exuberant
+energetic
+frantic
+depression
+calm
+content
+cheerful
+melancholy
