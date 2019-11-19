@@ -8,9 +8,7 @@ import string
 from google.cloud import firestore
 import google.cloud.exceptions
 
-db = firestore.Client()
-
-def generate_filter(raw_loaded_genres, name, num):
+def generate_filter(raw_loaded_genres, name, num, db):
 
 	#reading genre map
 	# with open('genremap_full.json', 'r') as f:

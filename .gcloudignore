@@ -19,3 +19,5 @@ node_modules
 #!include:.gitignore
 
 !secretstuff.py
+
+tester.py

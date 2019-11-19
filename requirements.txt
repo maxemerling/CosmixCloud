@@ -5,3 +5,4 @@ spotipy
 numpy
 scipy
 sklearn
+firebase_admin
