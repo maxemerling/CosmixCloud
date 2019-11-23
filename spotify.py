@@ -34,7 +34,7 @@ def features_from_id(spotify_id):
 
 def isrc_to_facts(isrc):
     track = sp.track(isrc_to_id(isrc))
-    return {'name': track['name'], 'artist': track['artists'][0]['name']}
+    return {'name': track['name'], 'artist': track['artists'][0]['name'], 'image': track['album']['images'][1]['url']}
 
 def get_audio_features(isrc):
     #isrc = get_val_from_request(request, 'isrc')

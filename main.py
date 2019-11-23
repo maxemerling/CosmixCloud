@@ -50,13 +50,13 @@ def check_party(request):
     #    return 'Not found'
 
 
-def get_facts(request):
-    isrcs = get_val_from_request(request, 'isrc').split('-')
-    try:
-        return json.dumps([get_or_post_facts(isrc, db) for isrc in isrcs])
-    except:
-        print("FAILED WITH", isrcs)
-        print(type(isrcs))
+# def get_facts(request):
+#     isrcs = get_val_from_request(request, 'isrc').split('-')
+#     try:
+#         return json.dumps([get_or_post_facts(isrc, db) for isrc in isrcs])
+#     except:
+#         print("FAILED WITH", isrcs)
+#         print(type(isrcs))
 
 def get_facts_list(request):
     party_id = get_val_from_request(request, 'id')
@@ -72,7 +72,7 @@ def gen_filter(request):
 
     new_isrcs = generate_filter(create_genre_json(all_isrcs), filter_name, int(num_songs), db=db)
 
-    return json.dumps(new_isrcs)
+    return json.dumps([get_or_post_facts(isrc, db) for isrc in new_isrcs])
 
 def save_isrcs(request):
     isrc_list = get_val_from_request(request, "isrcs")
