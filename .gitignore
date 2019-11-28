@@ -1,3 +1,4 @@
 serviceAccount.json
 secretstuff.py
 venv/
+GenerateFilter/glove.6B/

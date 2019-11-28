@@ -8,6 +8,19 @@ import string
 from google.cloud import firestore
 import google.cloud.exceptions
 
+def embed_genre(genre):
+	"""A function that takes in an array of different genres and returns an array of genre embeddings. 
+	If a word isn't found within Glove, that word is simply taken out of the genre embedding. 
+	"""
+	genre_embedding=np.zeros((300))
+	for word in genre.split(): #For each word in each genre
+		try: #If the word embedding is found
+			word_embedding = np.array(db.collection('glove').document(word).get().to_dict()['vector_embedding'])
+			genre_embedding = word_embedding + genre_embedding #Sum the word embeddings
+		except:
+			continue
+	return np.asarray(genre_embedding)
+
 def generate_filter(raw_loaded_genres, name, num, db):
 
 	#reading genre map
@@ -29,7 +42,7 @@ def generate_filter(raw_loaded_genres, name, num, db):
 	genre_array = [key for key in loaded_genres]
 	new_genre_array = genre_array[:]
 
-	# print("starting keep_genre")
+	print("starting keep_genre")
 
 	def keep_genre(genre_array):
 		"""A function that takes in an array of different genres and returns an array of genre embeddings. 
@@ -55,14 +68,14 @@ def generate_filter(raw_loaded_genres, name, num, db):
 	genre_embeddings=np.array(keep_genre(genre_array))
 	genre_index = np.array([i for i in range(len(genre_embeddings))])
 
-	# print("finished keep_genre")
+	print("finished keep_genre")
 
 	#knn
 	from sklearn.neighbors import KNeighborsClassifier
 	knn = KNeighborsClassifier(n_neighbors=3)
 	knn.fit(genre_embeddings, genre_index)
 
-	# print("finished knn")
+	print("finished knn")
 
 	#creates filter based on imput name and number of songs in filter
 	def create_filter(title, num_songs):

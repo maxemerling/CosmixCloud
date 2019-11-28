@@ -9,7 +9,7 @@ import AverageVector
 
 from VectorGenerationNew import num_attributes, add_to_mix
 from schema import Playlist
-from GenerateFilter.GenerateFilterDB import generate_filter
+from GenerateFilter.GenerateFilterDB import *
 from napster import *
 from AddToPartyPlaylist import *
 #from VectorGenerationNew import *
@@ -70,7 +70,10 @@ def gen_filter(request):
 
     all_isrcs = db.collection('parties').document(party_id).get().to_dict()['allTracks']
 
-    new_isrcs = generate_filter(create_genre_json(all_isrcs), filter_name, int(num_songs), db=db)
+    genre_dict = create_genre_json(all_isrcs)
+
+    print('finished creating genre dict')
+    new_isrcs = generate_filter(genre_dict, filter_name, int(num_songs), db=db)
 
     return json.dumps([get_or_post_facts(isrc, db) for isrc in new_isrcs])
 
@@ -112,6 +115,17 @@ def add(request):
 
     # only calculate and update stuff if new songs are actually being added
     if unseen_isrcs:
+
+        #storing song genres in database
+        # for isrc in unseen_isrcs:
+        #     genres = [genre(g)['name'] for g in track(isrc)['links']['genres']['ids']]
+        #     for g in genres:
+        #         g = g.lower().replace('/', ' ').replace('-', ' - ').replace('&', ' & ')
+        #         print(g)
+        #         if db.collection('genres').document(g).get().exists:
+        #             db.collection('genres').document(g).update({'tracks': firestore.ArrayUnion([isrc])})
+        #         else:
+        #             db.collection('genres').document(g).set({'tracks': [isrc]})
 
         # get list of song attributes for unseen_isrcs
         new_attributes_tuple_list = []

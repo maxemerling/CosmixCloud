@@ -33,7 +33,7 @@ def oldtrack(name, album, artist):
 def track(isrc):
 	matches = list(matchingtracks(isrc))
 	if len(matches) == 0:
-			raise ValueError('No such track found')
+			return {'links': {'genres': {'ids': []}}}
 	def numids(m):
 			if 'genres' in m['links']:
 					return len(m['links']['genres']['ids'])
@@ -41,8 +41,11 @@ def track(isrc):
 	return sorted(matches, key=numids)[-1]
 
 def matchingtracks(isrc):
-	r = req('/tracks/isrc/' + isrc).json()
-	return r['tracks']
+	try:
+		r = req('/tracks/isrc/' + isrc).json()
+		return r['tracks']
+	except:
+		return []
 
 # A few caches so we don't send too many requests
 tagcache = {}
@@ -93,16 +96,16 @@ def tag(id):
 
 def create_genre_json(isrc_list):
 	genremap = {}
-	for t in isrc_list:
+	for isrc in isrc_list:
 		try:
 			sys.stdout.flush()
 			#info(track(t))
-			genres = [genre(g)['name'] for g in track(t)['links']['genres']['ids']]
-			for g in genres:
-				if g in genremap:
-					genremap[g].append(t)
+			genres = [genre(g)['name'] for g in track(isrc)['links']['genres']['ids']]
+			for genre in genres:
+				if genre in genremap:
+					genremap[genre].append(isrc)
 				else:
-					genremap[g] = [t]
+					genremap[genre] = [isrc]
 				#print()
 		except:
 			pass
