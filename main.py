@@ -70,10 +70,7 @@ def gen_filter(request):
 
     all_isrcs = db.collection('parties').document(party_id).get().to_dict()['allTracks']
 
-    genre_dict = create_genre_json(all_isrcs)
-
-    print('finished creating genre dict')
-    new_isrcs = generate_filter(genre_dict, filter_name, int(num_songs), db=db)
+    new_isrcs = generate_filter(create_genre_json(all_isrcs), filter_name, int(num_songs), db=db)
 
     return json.dumps([get_or_post_facts(isrc, db) for isrc in new_isrcs])
 

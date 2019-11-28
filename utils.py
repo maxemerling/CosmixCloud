@@ -28,7 +28,7 @@ def get_or_post_features(isrc, db):
         data_dict = snapshot.to_dict()
         return feature_dict_to_vector(data_dict)
     else:
-        return post_song(isrc, db)[0]
+        return feature_dict_to_vector(post_song(isrc, db)[0])
 
 def post_song(isrc, db):
     raw_features = get_audio_features(isrc)
