@@ -74,12 +74,6 @@ def gen_filter(request):
 
     return json.dumps([get_or_post_facts(isrc, db) for isrc in new_isrcs])
 
-def save_isrcs(request):
-    isrc_list = get_val_from_request(request, "isrcs")
-    playlist_name = get_val_from_request(request, "name")
-    token = get_val_from_request(request, "token")
-    utils.new_playlist(playlist_name, isrc_list, token)
-
 def playlists(request):
     """Return the user's playlists for a given token and service."""
     service = get_val_from_request(request, 'service')
@@ -216,3 +210,10 @@ def save(request):
     party = db.collection('parties').document(party_id).get().to_dict()
     isrcs = party['filtTracks']
     utils.new_playlist(name, isrcs, token)
+
+def save_isrcs(request):
+    name = get_val_from_request(request, 'name')
+    isrcs = get_val_from_request(request, 'isrcs')
+    token = get_val_from_request(request, 'token')
+
+    utils.new_playlist(name, isrcs.split('-'), token)
