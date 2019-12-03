@@ -61,7 +61,7 @@ def check_party(request):
 def get_facts_list(request):
     party_id = get_val_from_request(request, 'id')
     isrc_dict = db.collection('parties').document(party_id).get().get('filtTracks')
-    return json.dumps([get_or_post_facts(isrc, db) for isrc in isrc_dict])
+    return json.dumps({isrc : get_or_post_facts(isrc, db) for isrc in isrc_dict})
 
 def gen_filter(request):
     filter_name = get_val_from_request(request, 'name')
@@ -72,7 +72,7 @@ def gen_filter(request):
 
     new_isrcs = generate_filter(create_genre_json(all_isrcs), filter_name, int(num_songs), db=db)
 
-    return json.dumps([get_or_post_facts(isrc, db) for isrc in new_isrcs])
+    return json.dumps({isrc : get_or_post_facts(isrc, db) for isrc in new_isrcs})
 
 def playlists(request):
     """Return the user's playlists for a given token and service."""
@@ -112,7 +112,6 @@ def add(request):
         #     genres = [genre(g)['name'] for g in track(isrc)['links']['genres']['ids']]
         #     for g in genres:
         #         g = g.lower().replace('/', ' ').replace('-', ' - ').replace('&', ' & ')
-        #         print(g)
         #         if db.collection('genres').document(g).get().exists:
         #             db.collection('genres').document(g).update({'tracks': firestore.ArrayUnion([isrc])})
         #         else:
@@ -122,10 +121,15 @@ def add(request):
         new_attributes_tuple_list = []
         unseen_attributes = []
         for isrc in unseen_isrcs:
-            feature_vec = get_or_post_features(isrc, db)
-            unseen_attributes.append(feature_vec)
+            try:
+                feature_vec = get_or_post_features(isrc, db)
 
-            new_attributes_tuple_list.append((isrc, feature_vec))
+                unseen_attributes.append(feature_vec)
+
+                new_attributes_tuple_list.append((isrc, feature_vec))
+            except:
+                unseen_isrcs.remove(isrc)
+                print(isrc)
 
         # get the current average vector of the party
         curr_avg_vec = party['averageVector']
