@@ -6,6 +6,7 @@ import utils
 # import secrets
 import string
 import AverageVector
+import requests
 
 from VectorGenerationNew import num_attributes, add_to_mix
 from schema import Playlist
