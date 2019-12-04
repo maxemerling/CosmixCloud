@@ -60,8 +60,10 @@ def check_party(request):
 
 def get_facts_list(request):
     party_id = get_val_from_request(request, 'id')
-    isrc_dict = db.collection('parties').document(party_id).get().get('filtTracks')
-    return json.dumps({isrc : get_or_post_facts(isrc, db) for isrc in isrc_dict})
+    facts_map_list = db.collection('parties').document(party_id).get().get('filtTracks')
+    if not facts_map_list:
+        facts_map_list = list()
+    return json.dumps(facts_map_list)
 
 def gen_filter(request):
     filter_name = get_val_from_request(request, 'name')
@@ -72,7 +74,7 @@ def gen_filter(request):
 
     new_isrcs = generate_filter(create_genre_json(all_isrcs), filter_name, int(num_songs), db=db)
 
-    return json.dumps({isrc : get_or_post_facts(isrc, db) for isrc in new_isrcs})
+    return json.dumps([get_or_post_facts(isrc, db) for isrc in new_isrcs])
 
 def playlists(request):
     """Return the user's playlists for a given token and service."""
@@ -107,16 +109,6 @@ def add(request):
     # only calculate and update stuff if new songs are actually being added
     if unseen_isrcs:
 
-        #storing song genres in database
-        # for isrc in unseen_isrcs:
-        #     genres = [genre(g)['name'] for g in track(isrc)['links']['genres']['ids']]
-        #     for g in genres:
-        #         g = g.lower().replace('/', ' ').replace('-', ' - ').replace('&', ' & ')
-        #         if db.collection('genres').document(g).get().exists:
-        #             db.collection('genres').document(g).update({'tracks': firestore.ArrayUnion([isrc])})
-        #         else:
-        #             db.collection('genres').document(g).set({'tracks': [isrc]})
-
         # get list of song attributes for unseen_isrcs
         new_attributes_tuple_list = []
         unseen_attributes = []
@@ -146,8 +138,18 @@ def add(request):
         # update averageVector, allTracks, filtTracks in database
         party_ref = db.collection('parties').document(party_id)
         party_ref.update({'averageVector': list(new_avg_vec)})
-        party_ref.update({'filtTracks': new_filt_tracks})
+        party_ref.update({'filtTracks': [get_or_post_facts(isrc, db) for isrc in new_filt_tracks]})
         party_ref.update({'allTracks': firestore.ArrayUnion(unseen_isrcs)})
+
+        # storing song genres in database
+        for isrc in unseen_isrcs:
+            genres = [genre(g)['name'] for g in track(isrc)['links']['genres']['ids']]
+            for g in genres:
+                g = g.lower().replace('/', ' ').replace('-', ' - ').replace('&', ' & ')
+                if db.collection('genres').document(g).get().exists:
+                    db.collection('genres').document(g).update({'tracks': firestore.ArrayUnion([isrc])})
+                else:
+                    db.collection('genres').document(g).set({'tracks': [isrc]})
 
 
 # JAMES'S ADD

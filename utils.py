@@ -17,9 +17,13 @@ def get_or_post_facts(isrc, db):
     doc = db.collection('facts').document(isrc)
     snapshot = doc.get()
     if snapshot.exists:
-        return snapshot.to_dict()
+        facts_dict = snapshot.to_dict()
     else:
-        return post_song(isrc, db)[1]
+        facts_dict = post_song(isrc, db)[1]
+
+    facts_dict['isrc'] = isrc
+
+    return facts_dict
 
 def get_or_post_features(isrc, db):
     doc = db.collection('features').document(isrc)
