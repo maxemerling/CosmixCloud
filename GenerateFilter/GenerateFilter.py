@@ -55,8 +55,8 @@ def keep_genre(genre_array):
 				word_counter += 1
 			except:
 				continue
-		# print("org", genre_embedding[0])
-		# print(genre_embedding[0])
+		if word_counter != 0:
+			genre_embedding = [el / word_counter for el in genre_embedding]
 		if np.any(genre_embedding):
 			genre_embeddings.append(genre_embedding)
 		else:

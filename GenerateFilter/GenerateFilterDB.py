@@ -36,7 +36,7 @@ def generate_filter(raw_loaded_genres, name, num, db):
 
 	loaded_genres = {}
 	for key in raw_loaded_genres:
-		loaded_genres[key.lower().replace('/', ' ').replace('-', ' - ').replace('&', ' & ')] = raw_loaded_genres[key]
+		loaded_genres[key.lower().replace('/', ' ').replace('-', ' ').replace('&', ' & ')] = raw_loaded_genres[key]
 
 	#create genre + mood array
 	genre_array = [key for key in loaded_genres]
@@ -52,12 +52,15 @@ def generate_filter(raw_loaded_genres, name, num, db):
 		for i in range(len(genre_array)): #For each genre
 			genre_embedding=np.zeros((300))
 			genre = genre_array[i]
+			word_counter = 0
 			for word in genre.split(): #For each word in each genre
 				try: #If the word embedding is found
 					word_embedding = np.array(db.collection('glove').document(word).get().to_dict()['vector_embedding'])
 					genre_embedding = genre_embedding + word_embedding #Sum the word embeddings
 				except:
 					continue
+			if word_counter != 0:
+				genre_embedding = [el / word_counter for el in genre_embedding]
 			if np.any(genre_embedding):
 				genre_embeddings.append(genre_embedding)
 			else:
@@ -79,7 +82,7 @@ def generate_filter(raw_loaded_genres, name, num, db):
 
 	#creates filter based on imput name and number of songs in filter
 	def create_filter(title, num_songs):
-		title = title.lower().replace('/', ' ').replace('-', ' - ').replace('&', ' & ')
+		title = title.lower().replace('/', ' ').replace('-', ' ').replace('&', ' & ')
 		title_embedding = np.array(keep_genre([title]))
 		closest_genres = knn.kneighbors(title_embedding)
 		neighbors = closest_genres[1][0]
